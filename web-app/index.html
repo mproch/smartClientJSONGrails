@@ -1,0 +1,95 @@
+<HTML><HEAD><TITLE>
+    Teścik
+</TITLE>
+    <SCRIPT>var isomorphicDir="isomorphic/";</SCRIPT>
+    <SCRIPT SRC=isomorphic/system/modules/ISC_Core.js?isc_version=SC_SNAPSHOT-2010-12-26.js></SCRIPT>
+    <SCRIPT SRC=isomorphic/system/modules/ISC_Foundation.js?isc_version=SC_SNAPSHOT-2010-12-26.js></SCRIPT>
+    <SCRIPT SRC=isomorphic/system/modules/ISC_Containers.js?isc_version=SC_SNAPSHOT-2010-12-26.js></SCRIPT>
+    <SCRIPT SRC=isomorphic/system/modules/ISC_Grids.js?isc_version=SC_SNAPSHOT-2010-12-26.js></SCRIPT>
+    <SCRIPT SRC=isomorphic/system/modules/ISC_DataBinding.js?isc_version=SC_SNAPSHOT-2010-12-26.js></SCRIPT>
+    <SCRIPT SRC=isomorphic/system/modules/ISC_Forms.js?isc_version=SC_SNAPSHOT-2010-12-26.js></SCRIPT>
+    <SCRIPT SRC=isomorphic/skins/SmartClient/load_skin.js?isc_version=SC_SNAPSHOT-2010-12-26.js></SCRIPT>
+</HEAD><BODY bgcolor=#e0e0e0 style="font-family:Tahoma,Verdana,Arial,Helvetica,san-serif;">
+
+<SCRIPT>
+
+isc.DynamicForm.create({
+ID: "contactsForm",
+left: 50, top: 0,
+width: 300,
+dataSource:"simpleDS",
+
+fields: [
+{name:"id", type:"hidden"},
+{name:"Title", title:"Title", editorType: "select",
+valueMap:["Title1", "Title2"]},
+{name:"Summary", title:"Summary"},
+{ type:"button", title:"Save", click:"contactsForm.saveData()", startRow:false },
+{ type:"button", title:"New", click:"contactsForm.clearValues()", startRow:false }
+
+]
+,saveData : function() {
+ if (!this.getValue("id")) {
+  simpleDS.addData(this.getValues());
+ } else {
+  simpleDS.updateData(this.getValues());
+ }
+ this.clearValues();
+}
+})
+
+isc.XJSONDataSource.create({
+    ID:"simpleDS",
+    dataURL:"sample/summary",
+    operationBindings : [
+        { operationType:"fetch", defaultParams : {method : "fetch"} },
+        { operationType:"update", defaultParams : {method : "update"}},
+        { operationType:"add", defaultParams : {method : "add"}},
+        { operationType:"remove", dataUrl : "sample/remove" }
+    ],
+    recordXPath : "/Result",
+    fields:[
+        { name : "id", primaryKey : true},
+        { name : "Title" },
+        { name : "Summary" }
+    ]
+});
+
+isc.SearchForm.create({
+    ID:"searchForm",
+    left:100,
+    top:100,
+    numCols:3,
+    items : [
+        { name:"Summary", title:"Query", type:"text", defaultValue:"sum" },
+        { type:"button", title:"Search", click:"fetch()", startRow:false }
+    ]
+});
+
+isc.ListGrid.create({
+    ID:"imageGrid",
+    left:20, top:140,
+    width:"80%",
+    height:500,
+    wrapCells:true,
+    fixedRecordHeights:false,
+    showAllRecords:true,
+    alternateRecordStyles:true,
+    dataSource:"simpleDS",
+    recordClick : function (viewer, record) {
+	contactsForm.setValues(record);
+    }
+});
+
+
+function fetch() {
+    //cos lewe to jest ://
+    imageGrid.invalidateCache();
+    imageGrid.fetchData(searchForm.getValuesAsCriteria());
+}
+
+fetch();
+
+</SCRIPT>
+</BODY>
+</HTML>
