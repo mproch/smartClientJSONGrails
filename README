@@ -1,0 +1,3 @@
+To run:
+mvn grails:run-app
+and go to localhost:8080/smartClientJSONGrails/index.html
